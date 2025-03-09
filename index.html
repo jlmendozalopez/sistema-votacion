@@ -509,6 +509,7 @@
                     tiendaError.textContent = "";
                 }
                 
+               // Dentro de la función validarLogin(), reemplaza este bloque:
                 if (esValido) {
                     // Guardar el ID del empleado actual
                     empleadoActual = empleadoInput.value;
@@ -547,48 +548,58 @@
             }
             
             function procesarOpcion() {
-                const opcionSeleccionada = document.querySelector('input[name="opcion"]:checked');
-                
-                if (!opcionSeleccionada) {
-                    alert("Por favor, selecciona una opción");
-                    return;
-                }
-                
-                opcionesForm.style.display = "none";
-                progressBar.style.width = "100%";
-                
-                if (opcionSeleccionada.value === "proponer") {
-                    proponerForm.style.display = "block";
-                    proponerForm.classList.add('fade-in');
-                } else {
-                    mostrarCargando(true);
+                    const opcionSeleccionada = document.querySelector('input[name="opcion"]:checked');
                     
-                    // Cargar propuestas desde Firestore
-                    const propuestasRef = collection(db, 'propuestas');
-                    const q = query(propuestasRef, orderBy('votos', 'desc'));
+                    if (!opcionSeleccionada) {
+                        alert("Por favor, selecciona una opción");
+                        return;
+                    }
                     
-                    getDocs(q)
-                        .then((snapshot) => {
-                            propuestas = [];
-                            snapshot.forEach((doc) => {
-                                propuestas.push({
-                                    id: doc.id,
-                                    ...doc.data()
+                    opcionesForm.style.display = "none";
+                    progressBar.style.width = "100%";
+                    
+                    if (opcionSeleccionada.value === "proponer") {
+                        proponerForm.style.display = "block";
+                        proponerForm.classList.add('fade-in');
+                    } else {
+                        mostrarCargando(true);
+                        
+                        // Cargar propuestas desde Firestore
+                        const propuestasRef = collection(db, 'propuestas');
+                        const q = query(propuestasRef, orderBy('votos', 'desc'));
+                        
+                        getDocs(q)
+                            .then((snapshot) => {
+                                propuestas = [];
+                                
+                                if (snapshot.empty) {
+                                    mostrarCargando(false);
+                                    alert("No hay propuestas disponibles para votar. Por favor propón un nombre primero.");
+                                    // Volver a las opciones
+                                    opcionesForm.style.display = "block";
+                                    progressBar.style.width = "66%";
+                                    return;
+                                }
+                                
+                                snapshot.forEach((doc) => {
+                                    propuestas.push({
+                                        id: doc.id,
+                                        ...doc.data()
+                                    });
                                 });
+                                
+                                cargarPropuestas();
+                                mostrarCargando(false);
+                                votarForm.style.display = "block";
+                                votarForm.classList.add('fade-in');
+                            })
+                            .catch((error) => {
+                                mostrarCargando(false);
+                                console.error("Error al cargar propuestas:", error);
+                                alert("Error al cargar las propuestas. Intenta nuevamente.");
                             });
-                            
-                            cargarPropuestas();
-                            mostrarCargando(false);
-                            votarForm.style.display = "block";
-                            votarForm.classList.add('fade-in');
-                        })
-                        .catch((error) => {
-                            mostrarCargando(false);
-                            console.error("Error al cargar propuestas:", error);
-                            alert("Error al cargar las propuestas. Intenta nuevamente.");
-                        });
+                    }
                 }
-            }
             
             function cargarPropuestas() {
                 const nombresList = document.getElementById('nombres-list');
