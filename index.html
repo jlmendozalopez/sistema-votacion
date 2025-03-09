@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Votación - App del Gerente</title>
+    
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --primary-hover: #3a56e8;
+            --secondary-color: #7209b7;
+            --light-bg: #f8f9fa;
+            --dark-text: #212529;
+            --gray-text: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-text);
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-weight: 600;
+            font-size: 1.8rem;
+        }
+        
+        h2 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            font-weight: 500;
+            font-size: 1.4rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-text);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e1e5eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 500;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        
+        .options {
+            margin-top: 25px;
+            display: none;
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border: 1px solid #e1e5eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .radio-option:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .radio-option input[type="radio"] {
+            width: auto;
+            margin-right: 12px;
+        }
+        
+        .nombres-list {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .nombre-item {
+            background: var(--light-bg);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 5px solid var(--primary-color);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+        }
+        
+        .nombre-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .nombre-item input[type="radio"] {
+            width: auto;
+            margin-right: 12px;
+        }
+        
+        .nombre-info {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .votos {
+            font-weight: bold;
+            color: var(--primary-color);
+            background: rgba(67, 97, 238, 0.1);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .error {
+            color: #e63946;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .success {
+            color: #2a9d8f;
+            font-size: 16px;
+            margin-top: 15px;
+            text-align: center;
+            padding: 10px;
+            background-color: rgba(42, 157, 143, 0.1);
+            border-radius: 8px;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo-text {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            letter-spacing: -1px;
+        }
+        
+        .logo-subtitle {
+            font-size: 0.9rem;
+            color: var(--gray-text);
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background-color: #e1e5eb;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 33%;
+            transition: var(--transition);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .loading-circle {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(67, 97, 238, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.4s ease forwards;
+        }
+        
+        /* Media queries para responsividad */
+        @media (max-width: 576px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.6rem;
+            }
+            
+            h2 {
+                font-size: 1.2rem;
+            }
+            
+            input, select, button {
+                padding: 12px;
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container fade-in">
+        <div class="logo">
+            <div class="logo-text">VotApp</div>
+            <div class="logo-subtitle">Sistema de Votación para la App del Gerente</div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        
+        <div id="loading" class="loading">
+            <div class="loading-circle"></div>
+            <p>Cargando...</p>
+        </div>
+        
+        <div id="login-form">
+            <h1>Inicia tu Votación</h1>
+            
+            <div class="form-group">
+                <label for="empleado">Número de Empleado</label>
+                <input type="text" id="empleado" maxlength="6" placeholder="Ingresa máximo 6 dígitos">
+                <div class="error" id="empleado-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="nombre">Nombre Completo</label>
+                <input type="text" id="nombre" placeholder="Escribe tu nombre completo">
+                <div class="error" id="nombre-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="tienda">Selecciona tu Tienda</label>
+                <select id="tienda">
+                    <option value="">Elige una tienda</option>
+                    <option value="Tienda Centro">Tienda Centro</option>
+                    <option value="Tienda Norte">Tienda Norte</option>
+                    <option value="Tienda Sur">Tienda Sur</option>
+                    <option value="Tienda Este">Tienda Este</option>
+                    <option value="Tienda Oeste">Tienda Oeste</option>
+                </select>
+                <div class="error" id="tienda-error"></div>
+            </div>
+            
+            <button id="continuar">Continuar</button>
+        </div>
+        
+        <div id="opciones-form" class="options">
+            <h2>¿Qué deseas hacer?</h2>
+            
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="opcion" value="proponer"> 
+                    Proponer un nombre para la app
+                </label>
+                
+                <label class="radio-option">
+                    <input type="radio" name="opcion" value="votar"> 
+                    Votar por un nombre existente
+                </label>
+            </div>
+            
+            <button id="seleccionar-opcion">Continuar</button>
+        </div>
+        
+        <div id="proponer-form" class="options">
+            <h2>Proponer un Nombre</h2>
+            
+            <div class="form-group">
+                <label for="propuesta">Nombre para la App</label>
+                <input type="text" id="propuesta" placeholder="Escribe tu propuesta de nombre">
+                <div class="error" id="propuesta-error"></div>
+            </div>
+            
+            <button id="enviar-propuesta">Enviar Propuesta</button>
+            <div id="propuesta-success" class="success"></div>
+        </div>
+        
+        <div id="votar-form" class="options">
+            <h2>Votar por un Nombre</h2>
+            
+            <div id="nombres-list" class="nombres-list">
+                <!-- Aquí se mostrarán los nombres propuestos dinámicamente -->
+            </div>
+            
+            <button id="enviar-voto">Enviar Voto</button>
+            <div id="voto-success" class="success"></div>
+        </div>
+    </div>
+
+    <!-- Incluir Firebase (Versión modular) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, runTransaction, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+        
+        // Tu configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAFMp3BbMM-indcX7FWlrTFFoEX4vG-Kt8",
+            authDomain: "sistemavotaciones-b0bba.firebaseapp.com",
+            projectId: "sistemavotaciones-b0bba",
+            storageBucket: "sistemavotaciones-b0bba.firebasestorage.app",
+            messagingSenderId: "203898236463",
+            appId: "1:203898236463:web:18a14b0b282cc43544e0da"
+        };
+        
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        // Exponer funciones de Firebase al ámbito global para poder usarlas
+        window.firebaseModules = {
+            db,
+            collection,
+            addDoc,
+            getDocs,
+            doc,
+            getDoc,
+            updateDoc,
+            runTransaction,
+            query,
+            where,
+            orderBy,
+            serverTimestamp
+        };
+    </script>
+
+    <script>
+        // Esperar a que el DOM y Firebase estén listos
+        document.addEventListener('DOMContentLoaded', () => {
+            // Esperar a que los módulos de Firebase estén disponibles
+            setTimeout(inicializarApp, 500);
+        });
+
+        function inicializarApp() {
+            // Obtener los módulos de Firebase
+            const { 
+                db, 
+                collection, 
+                addDoc, 
+                getDocs, 
+                doc,
+                getDoc, 
+                updateDoc, 
+                runTransaction, 
+                query, 
+                where, 
+                orderBy, 
+                serverTimestamp 
+            } = window.firebaseModules || {};
+            
+            // Verificar que Firebase esté cargado
+            if (!db) {
+                console.error("Firebase no se ha cargado correctamente.");
+                alert("Error al cargar la base de datos. Por favor, recarga la página.");
+                return;
+            }
+            
+            console.log("Firebase inicializado correctamente");
+            
+            // Elementos DOM
+            const loginForm = document.getElementById('login-form');
+            const opcionesForm = document.getElementById('opciones-form');
+            const proponerForm = document.getElementById('proponer-form');
+            const votarForm = document.getElementById('votar-form');
+            const progressBar = document.getElementById('progress');
+            const loading = document.getElementById('loading');
+            
+            // Botones
+            const continuarBtn = document.getElementById('continuar');
+            const seleccionarOpcionBtn = document.getElementById('seleccionar-opcion');
+            const enviarPropuestaBtn = document.getElementById('enviar-propuesta');
+            const enviarVotoBtn = document.getElementById('enviar-voto');
+            
+            // Campos
+            const empleadoInput = document.getElementById('empleado');
+            const nombreInput = document.getElementById('nombre');
+            const tiendaSelect = document.getElementById('tienda');
+            const propuestaInput = document.getElementById('propuesta');
+            
+            // Errores
+            const empleadoError = document.getElementById('empleado-error');
+            const nombreError = document.getElementById('nombre-error');
+            const tiendaError = document.getElementById('tienda-error');
+            const propuestaError = document.getElementById('propuesta-error');
+            
+            // Mensajes de éxito
+            const propuestaSuccess = document.getElementById('propuesta-success');
+            const votoSuccess = document.getElementById('voto-success');
+            
+            // Variables globales
+            let propuestas = [];
+            let empleadoActual = '';
+            
+            // Eventos
+            continuarBtn.addEventListener('click', validarLogin);
+            seleccionarOpcionBtn.addEventListener('click', procesarOpcion);
+            enviarPropuestaBtn.addEventListener('click', guardarPropuesta);
+            enviarVotoBtn.addEventListener('click', guardarVoto);
+            
+            // Funciones
+            function mostrarCargando(mostrar = true) {
+                loading.style.display = mostrar ? 'block' : 'none';
+            }
+            
+            function validarLogin() {
+                let esValido = true;
+                
+                // Validar empleado (solo números, máximo 6 dígitos)
+                const empleadoRegex = /^\d{1,6}$/;
+                if (!empleadoRegex.test(empleadoInput.value)) {
+                    empleadoError.textContent = "Ingresa un número de empleado válido (hasta 6 dígitos)";
+                    esValido = false;
+                } else {
+                    empleadoError.textContent = "";
+                }
+                
+                // Validar nombre
+                if (nombreInput.value.trim() === "") {
+                    nombreError.textContent = "El nombre es requerido";
+                    esValido = false;
+                } else {
+                    nombreError.textContent = "";
+                }
+                
+                // Validar tienda
+                if (tiendaSelect.value === "") {
+                    tiendaError.textContent = "Selecciona una tienda";
+                    esValido = false;
+                } else {
+                    tiendaError.textContent = "";
+                }
+                
+                if (esValido) {
+                    // Guardar el ID del empleado actual
+                    empleadoActual = empleadoInput.value;
+                    
+                    // Verificar si el empleado ya votó
+                    mostrarCargando(true);
+                    
+                    const votosRef = collection(db, 'votos');
+                    const q = query(votosRef, where('empleadoId', '==', empleadoActual));
+                    
+                    getDocs(q)
+                        .then((snapshot) => {
+                            mostrarCargando(false);
+                            
+                            if (!snapshot.empty) {
+                                alert("Ya has emitido un voto anteriormente.");
+                                return;
+                            }
+                            
+                            // Ocultar login y mostrar opciones
+                            loginForm.style.display = "none";
+                            opcionesForm.style.display = "block";
+                            
+                            // Actualizar barra de progreso
+                            progressBar.style.width = "66%";
+                            
+                            // Animación
+                            opcionesForm.classList.add('fade-in');
+                        })
+                        .catch((error) => {
+                            mostrarCargando(false);
+                            console.error("Error al verificar voto:", error);
+                            alert("Error al verificar si ya has votado. Intenta nuevamente.");
+                        });
+                }
+            }
+            
+            function procesarOpcion() {
+                const opcionSeleccionada = document.querySelector('input[name="opcion"]:checked');
+                
+                if (!opcionSeleccionada) {
+                    alert("Por favor, selecciona una opción");
+                    return;
+                }
+                
+                opcionesForm.style.display = "none";
+                progressBar.style.width = "100%";
+                
+                if (opcionSeleccionada.value === "proponer") {
+                    proponerForm.style.display = "block";
+                    proponerForm.classList.add('fade-in');
+                } else {
+                    mostrarCargando(true);
+                    
+                    // Cargar propuestas desde Firestore
+                    const propuestasRef = collection(db, 'propuestas');
+                    const q = query(propuestasRef, orderBy('votos', 'desc'));
+                    
+                    getDocs(q)
+                        .then((snapshot) => {
+                            propuestas = [];
+                            snapshot.forEach((doc) => {
+                                propuestas.push({
+                                    id: doc.id,
+                                    ...doc.data()
+                                });
+                            });
+                            
+                            cargarPropuestas();
+                            mostrarCargando(false);
+                            votarForm.style.display = "block";
+                            votarForm.classList.add('fade-in');
+                        })
+                        .catch((error) => {
+                            mostrarCargando(false);
+                            console.error("Error al cargar propuestas:", error);
+                            alert("Error al cargar las propuestas. Intenta nuevamente.");
+                        });
+                }
+            }
+            
+            function cargarPropuestas() {
+                const nombresList = document.getElementById('nombres-list');
+                nombresList.innerHTML = "";
+                
+                if (propuestas.length === 0) {
+                    nombresList.innerHTML = "<p>No hay propuestas disponibles aún. ¡Sé el primero en proponer un nombre!</p>";
+                    return;
+                }
+                
+                propuestas.forEach(propuesta => {
+                    const propuestaElement = document.createElement('div');
+                    propuestaElement.className = 'nombre-item';
+                    propuestaElement.innerHTML = `
+                        <input type="radio" name="propuesta-voto" value="${propuesta.id}" id="prop-${propuesta.id}">
+                        <div class="nombre-info">
+                            <label for="prop-${propuesta.id}"><strong>${propuesta.nombre}</strong></label>
+                            <span class="votos">${propuesta.votos} votos</span>
+                        </div>
+                    `;
+                    nombresList.appendChild(propuestaElement);
+                });
+            }
+            
+            function guardarPropuesta() {
+                const nuevaPropuesta = propuestaInput.value.trim();
+                
+                if (nuevaPropuesta === "") {
+                    propuestaError.textContent = "Ingresa un nombre para la propuesta";
+                    return;
+                }
+                
+                mostrarCargando(true);
+                enviarPropuestaBtn.disabled = true;
+                
+                // Verificar si ya existe la propuesta
+                const propuestasRef = collection(db, 'propuestas');
+                const q = query(propuestasRef, where('nombre', '==', nuevaPropuesta));
+                
+                getDocs(q)
+                    .then((snapshot) => {
+                        if (!snapshot.empty) {
+                            mostrarCargando(false);
+                            propuestaError.textContent = "Esta propuesta ya existe";
+                            enviarPropuestaBtn.disabled = false;
+                            return;
+                        }
+                        
+                        // Crear nueva propuesta en Firestore
+                        addDoc(propuestasRef, {
+                            nombre: nuevaPropuesta,
+                            votos: 1,
+                            fechaCreacion: serverTimestamp()
+                        })
+                        .then((docRef) => {
+                            // Registrar el voto del empleado
+                            const votosRef = collection(db, 'votos');
+                            return addDoc(votosRef, {
+                                empleadoId: empleadoActual,
+                                nombre: nombreInput.value.trim(),
+                                tienda: tiendaSelect.value,
+                                propuestaId: docRef.id,
+                                propuestaNombre: nuevaPropuesta,
+                                fechaVoto: serverTimestamp()
+                            });
+                        })
+                        .then(() => {
+                            mostrarCargando(false);
+                            propuestaInput.value = "";
+                            propuestaError.textContent = "";
+                            propuestaSuccess.textContent = "¡Tu propuesta ha sido guardada y se registró tu voto!";
+                            
+                            // Después de 3 segundos, regresar al inicio
+                            setTimeout(() => {
+                                reiniciarFormulario();
+                            }, 3000);
+                        })
+                        .catch((error) => {
+                            mostrarCargando(false);
+                            enviarPropuestaBtn.disabled = false;
+                            console.error("Error al guardar propuesta:", error);
+                            alert("Error al guardar la propuesta. Intenta nuevamente.");
+                        });
+                    })
+                    .catch((error) => {
+                        mostrarCargando(false);
+                        enviarPropuestaBtn.disabled = false;
+                        console.error("Error al verificar propuesta existente:", error);
+                        alert("Error al verificar propuestas existentes. Intenta nuevamente.");
+                    });
+            }
+            
+            function guardarVoto() {
+                const propuestaSeleccionada = document.querySelector('input[name="propuesta-voto"]:checked');
+                
+                if (!propuestaSeleccionada) {
+                    alert("Por favor, selecciona una propuesta para votar");
+                    return;
+                }
+                
+                mostrarCargando(true);
+                enviarVotoBtn.disabled = true;
+                
+                const propuestaId = propuestaSeleccionada.value;
+                const propuestaIndex = propuestas.findIndex(p => p.id === propuestaId);
+                const propuestaNombre = propuestas[propuestaIndex].nombre;
+                
+                // Incrementar el contador de votos en Firestore (transacción)
+                const propuestaRef = doc(db, 'propuestas', propuestaId);
+                
+                runTransaction(db, async (transaction) => {
+                    const propuestaDoc = await transaction.get(propuestaRef);
+                    
+                    if (!propuestaDoc.exists()) {
+                        throw "La propuesta no existe";
+                    }
+                    
+                    const nuevoVotos = propuestaDoc.data().votos + 1;
+                    transaction.update(propuestaRef, { votos: nuevoVotos });
+                })
+                .then(() => {
+                    // Registrar el voto del empleado
+                    const votosRef = collection(db, 'votos');
+                    return addDoc(votosRef, {
+                        empleadoId: empleadoActual,
+                        nombre: nombreInput.value.trim(),
+                        tienda: tiendaSelect.value,
+                        propuestaId: propuestaId,
+                        propuestaNombre: propuestaNombre,
+                        fechaVoto: serverTimestamp()
+                    });
+                })
+                .then(() => {
+                    // Actualizar la interfaz
+                    propuestas[propuestaIndex].votos++;
+                    mostrarCargando(false);
+                    votoSuccess.textContent = "¡Tu voto ha sido registrado con éxito!";
+                    cargarPropuestas();
+                    
+                    // Después de 3 segundos, regresar al inicio
+                    setTimeout(() => {
+                        reiniciarFormulario();
+                    }, 3000);
+                })
+                .catch((error) => {
+                    mostrarCargando(false);
+                    enviarVotoBtn.disabled = false;
+                    console.error("Error al registrar voto:", error);
+                    alert("Error al registrar el voto. Intenta nuevamente.");
+                });
+            }
+            
+            function reiniciarFormulario() {
+                // Ocultar todos los formularios
+                loginForm.style.display = "block";
+                opcionesForm.style.display = "none";
+                proponerForm.style.display = "none";
+                votarForm.style.display = "none";
+                
+                // Resetear barra de progreso
+                progressBar.style.width = "33%";
+                
+                // Habilitar botones
+                enviarPropuestaBtn.disabled = false;
+                enviarVotoBtn.disabled = false;
+                
+                // Limpiar campos
+                empleadoInput.value = "";
+                nombreInput.value = "";
+                tiendaSelect.value = "";
+                propuestaInput.value = "";
+                
+                // Limpiar errores
+                empleadoError.textContent = "";
+                nombreError.textContent = "";
+                tiendaError.textContent = "";
+                propuestaError.textContent = "";
+                
+                // Limpiar mensajes de éxito
+                propuestaSuccess.textContent = "";
+                votoSuccess.textContent = "";
+                
+                // Añadir animación
+                loginForm.classList.add('fade-in');
+            }
+        }
+    </script>
+</body>
+</html>
